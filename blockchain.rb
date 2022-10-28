@@ -4,26 +4,40 @@ require 'pp'
 LEDGER =[]
 
 class Block
-    attr_reader :index, :timestamp, :data, :previous_data, :hash
+    attr_reader :index, :nonce, :timestamp, :data, :previous_data, :hash
 
     def initialize(index, data, previous_hash)
      @index = index
      @timestamp = Time.now
      @data = data
      @previous_hash = previous_hash
-     @hash = compute_hash
+     @hash, @nonce = compute_hash_with_proof_of_work
 
     end
+    
+    def compute_hash_with_proof_of_work(difficulty="0011")
+      nonce = 0 
+      loop do
+        hash = compute_hash_with_nonce(nonce)
+        if hash.start_with?(difficulty)
+            return [hash, nonce]
+        else
+            nonce += 1
+            print "#{nonce} - "
+            
+        end
+      end 
+    end
 
-    def compute_hash
+    def compute_hash_with_nonce(nonce=0)
       sha = Digest::SHA256.new
       sha.update( @index.to_s + 
+                  nonce.to_s +
                   @timestamp.to_s + 
                   @data + 
                   @previous_hash )
       sha.hexdigest         
     end
-
     def self.first(data)
         Block.new(0, data, "0")
     end
