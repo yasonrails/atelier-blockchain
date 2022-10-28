@@ -1,7 +1,10 @@
+require 'digest'
+require 'pp'
+
+LEDGER =[]
+
 class Block
     attr_reader :index, :timestamp, :data, :previous_data, :hash
-    require 'digest'
-    require 'pp'
 
     def initialize(index, data, previous_hash)
      @index = index
@@ -25,15 +28,29 @@ class Block
         Block.new(0, data, "0")
     end
 
-    def self.next(previous, data)
+    def self.next(previous, data=gets)
         Block.new(previous.index+1, data, previous.hash)
     end
         
+end # class Block
+
+def create_first_block
+  i = 0
+  instance_variable_set("@b#{i}", Block.first("BLK"))   
+  LEDGER << @b0
+  pp @b0
+  add_block
+end
+def add_block
+  i = 1
+  loop do
+    instance_variable_set("@b#{i}", Block.next(instance_variable_get("@b#{i-1}")))  
+    LEDGER << instance_variable_get("@b#{i}")
+    p "======================================"
+    pp instance_variable_get("@b#{i}")
+    p "======================================"
+
+  end
 end
 
-b0 = Block.first("BLK")
-b1 = Block.next(b0, "BBBLLLLKKKK")
-b2 = Block.next(b1, "BLK more data")
-b3 = Block.next(b2, "more more more data")
-
-pp [b0, b1, b2,b3]
+create_first_block
