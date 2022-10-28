@@ -3,20 +3,22 @@ class Block
     require 'digest'
     require 'pp'
 
-    def initialize(index, data, previous_data)
+    def initialize(index, data, previous_hash)
      @index = index
      @timestamp = Time.now
      @data = data
-     @previous_data = previous_data
-     @hash = hash
+     @previous_hash = previous_hash
+     @hash = compute_hash
 
     end
 
     def compute_hash
       sha = Digest::SHA256.new
-      sha.update(@index.to_s + @timestamp.to_s + @data.to_s + @previous_data)
-      sha.hexdigest
-      p sha         
+      sha.update( @index.to_s + 
+                  @timestamp.to_s + 
+                  @data + 
+                  @previous_hash )
+      sha.hexdigest         
     end
 
     def self.first(data)
